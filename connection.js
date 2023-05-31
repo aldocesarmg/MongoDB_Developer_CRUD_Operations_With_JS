@@ -5,13 +5,16 @@ const client = new MongoClient(uri);
 async function main() {
     try{
         await client.connect();
-        // await listDatabases(client);
+        /*
+        await listDatabases(client);
+
         await createListing(client, {
             name: "Lovely Loft",
             summary: "A charming loft in Paris",
             bedrooms: 1,
             bathrooms: 1
         });
+
         await createMultipleListings(client, [
             {
                 name: "Infinite Views",
@@ -36,6 +39,9 @@ async function main() {
                 last_review: new Date()
             }
         ]);
+        */
+
+        await findOneListingByName(client, "Infinite Views");
     } catch (e) {
         console.error(e);
     } finally {
@@ -53,15 +59,31 @@ async function listDatabases(client) {
     });
 }
 
+// INSERTING
+// Create one document inside a collection
 async function createListing(client, newListing) {
+    // The operation insertOne returns an insertOneWriteOpResultObject instance
     const result = await client.db("sample_airbnb").collection("listingsAndReviews").insertOne(newListing);
     console.log(`New listing created with the following id: ${result.insertedId}`);
 }
 
+// create multiple documents inside a collection
 async function createMultipleListings(client, newListings) {
+    // The operation insertMany returns an insertWriteOpResult instance
     const result = await client.db("sample_airbnb").collection("listingsAndReviews").insertMany(newListings);
     console.log(`${result.insertedCount} new listing(s) created with the following id(s):`);
     console.log(result.insertedIds);
 }
 
+// READING
+async function findOneListingByName(client, nameOfListing) {
+    const result = await client.db("sample_airbnb").collection("listingsAndReviews").findOne({ name: nameOfListing});
+
+    if (result) {
+        console.log(`Found a listing in the collection with the name '${nameOfListing}':`);
+        console.log(result);
+    } else {
+        console.log(`No listings found with the name '${nameOfListing}'`);
+    }
+}
 main().catch(console.error);
